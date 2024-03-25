@@ -687,6 +687,9 @@ class HFLM(TemplateLM):
                 # TODO: investigate best practices for enc-dec models + special tokens
                 add_special_tokens = True
 
+        if string is None:
+            string = ""
+        assert isinstance(string, str), f"Expected string, got {type(string)}"
         encoding = self.tokenizer.encode(string, add_special_tokens=add_special_tokens)
 
         # left-truncate the encoded context to be at most `left_truncate_len` tokens long
@@ -846,7 +849,7 @@ class HFLM(TemplateLM):
                 )
 
                 pad_amnt = max(gathered) - gathered[self.rank]
-                if pad_amnt > 0:
+                if pad_amnt > 0 and len(rolling_token_windows) > 0:
                     rolling_token_windows += pad_amnt * [rolling_token_windows[0]]
 
             string_nll = self._loglikelihood_tokens(
